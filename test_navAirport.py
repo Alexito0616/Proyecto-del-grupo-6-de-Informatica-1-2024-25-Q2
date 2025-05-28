@@ -1,24 +1,31 @@
 import unittest
-from navPoint import NavPoint
-from navAirport import NavAirport
+from navAirport import NavAirport  # Reemplaza 'your_module' con el nombre real del archivo si es necesario
 
 
 class TestNavAirport(unittest.TestCase):
-   def test_add_sid_and_star(self):
-       airport = NavAirport("LEIB")
-       sid = NavPoint(6062, "IZA.A", 38.87, 1.36)
-       star = NavPoint(6063, "ZDA.B", 38.87, 1.74)
 
 
-       airport.add_sid(sid)
-       airport.add_star(star)
+   def test_initialization(self):
+       airport = NavAirport("LEMD", ["SID1", "SID2"], ["STAR1", "STAR2"])
+       self.assertEqual(airport.name, "LEMD")
+       self.assertEqual(airport.sids, ["SID1", "SID2"])
+       self.assertEqual(airport.stars, ["STAR1", "STAR2"])
 
 
-       self.assertEqual(len(airport.sids), 1)
-       self.assertEqual(len(airport.stars), 1)
-       self.assertEqual(airport.sids[0].name, "IZA.A")
-       self.assertEqual(airport.stars[0].name, "ZDA.B")
+   def test_empty_lists(self):
+       airport = NavAirport("LEBL", [], [])
+       self.assertEqual(airport.sids, [])
+       self.assertEqual(airport.stars, [])
+
+
+   def test_repr(self):
+       airport = NavAirport("EGLL", ["SID3"], ["STAR5"])
+       expected_repr = "NavAirport(EGLL, SIDs=['SID3'], STARs=['STAR5'])"
+       self.assertEqual(repr(airport), expected_repr)
 
 
 if __name__ == "__main__":
    unittest.main()
+
+
+
