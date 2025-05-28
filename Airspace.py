@@ -1,152 +1,72 @@
+from navPoint import NavPoint
 from navSegment import NavSegment
 from navAirport import NavAirport
-from navPoint import NavPoint
-
-
-
-
-
-
 
 
 class AirSpace:
-  def __init__(self):
-      self.navpoints = {}      # ID -> NavPoint
-      self.navsegments = []    # Lista de NavSegment
-      self.airports = []       # Lista de NavAirport
+   def __init__(self):
+       self.navpoints = {}     # key: number, value: NavPoint
+       self.navsegments = []   # List of NavSegment
+       self.navairports = []   # List of NavAirport
 
+   #Cargar todos los nodos
+   def load_navpoints(self, filename: str):
+       with open(filename, 'r') as f:
+           for line in f:
+               parts = line.strip().split()
+               number = int(parts[0])
+               name = parts[1]
+               latitude = float(parts[2])
+               longitude = float(parts[3])
+               self.navpoints[number] = NavPoint(number, name, latitude, longitude)
+               self.navpoints[number].neighbors = []  # Inicializa la lista de vecinos
 
+   #Cargar los segmentos
+   def load_navsegments(self, filename: str):
+       with open(filename, 'r') as f:
+           for line in f:
+               parts = line.strip().split()
+               origin = int(parts[0])
+               dest = int(parts[1])
+               dist = float(parts[2])
+               self.navsegments.append(NavSegment(origin, dest, dist))
+               self.navpoints[origin].neighbors.append((dest, dist))  # Añadir vecino
 
+   #Cargar los aeropuertos
+   def load_airports(self, filename: str):
+       with open(filename, 'r') as f:
+           lines = [line.strip() for line in f if line.strip()]
+           i = 0
+           while i < len(lines):
+               name = lines[i]
+               sids = []
+               i += 1
+               while i < len(lines) and lines[i].endswith(".D"):
+                   sid = self._find_navpoint_by_name(lines[i])
+                   if sid:
+                       sids.append(sid)
+                   i += 1
+               stars = []
+               while i < len(lines) and lines[i].endswith(".A"):
+                   star = self._find_navpoint_by_name(lines[i])
+                   if star:
+                       stars.append(star)
+                   i += 1
+               self.navairports.append(NavAirport(name, sids, stars))
 
-  def load_from_files(self, nav_file, seg_file, aer_file):
-      self._load_navpoints(nav_file)
-      self._load_navsegments(seg_file)
-      self._load_airports(aer_file)
+   #Buscar un nodo por su nombre
+   def _find_navpoint_by_name(self, name: str):
+       for navpoint in self.navpoints.values():
+           if navpoint.name == name:
+               return navpoint
+       return None
 
+   #Abrir los ficheros de seg,aer,nav
+   def load_from_files(self, nav_file, seg_file, aer_file):
+       self.load_navpoints(nav_file)
+       self.load_navsegments(seg_file)
+       self.load_airports(aer_file)
 
-
-
-  def _load_navpoints(self, filename):
-      with open(filename) as f:
-          for line in f:
-              parts = line.strip().split()
-              id = parts[0]
-              name = parts[1]
-              lat = parts[2]
-              lon = parts[3]
-              self.navpoints[int(id)] = NavPoint(id, name, lat, lon)
-
-
-
-
-  def _load_navsegments(self, filename):
-      with open(filename) as f:
-          for line in f:
-              origin, dest, dist = line.strip().split()
-              segment = NavSegment(origin, dest, dist)
-              self.navsegments.append(segment)
-              self.navpoints[int(origin)].neighbors.append((int(dest), float(dist)))
-
-
-  def _load_airports(self, filename):
-      with open(filename) as f:
-          for line in f:
-              parts = line.strip().split()
-              name = parts[0]
-              sids = []
-              stars = []
-              section = 'SID'
-
-
-              for item in parts[1:]:
-                  if item.lower() == 'arrival':
-                      section = 'STAR'
-                      continue
-                  navpoint_name = item.strip(',')  # puede ser nombre, no ID
-                  # Buscar el ID a partir del nombre
-                  matching = [np_id for np_id, np in self.navpoints.items() if np.name == navpoint_name]
-                  if matching:
-                      if section == 'SID':
-                          sids.append(matching[0])
-                      else:
-                          stars.append(matching[0])
-                  else:
-                      print(f"[WARNING] Punto de navegación '{navpoint_name}' no encontrado para aeropuerto '{name}'")
-
-
-              self.airports.append(NavAirport(name, sids, stars))
-
-
-  def show_neighbors(self, point_id):
-      point = self.navpoints[point_id]
-      print(f"Vecinos de {point.name} ({point.id}):")
-      for neighbor_id, dist in point.neighbors:
-          neighbor = self.navpoints[neighbor_id]
-          print(f"  -> {neighbor.name} ({neighbor.id}) a {dist} km")
-
-
-
-
-  def shortest_path(self, start_id, end_id):
-      import heapq
-      distances = {id: float('inf') for id in self.navpoints}
-      previous = {}
-      distances[start_id] = 0
-      queue = [(0, start_id)]
-
-
-
-
-      while queue:
-          current_dist, current_id = heapq.heappop(queue)
-
-
-
-
-          if current_id == end_id:
-              break
-
-
-
-
-          for neighbor_id, dist in self.navpoints[current_id].neighbors:
-              new_dist = current_dist + dist
-              if new_dist < distances[neighbor_id]:
-                  distances[neighbor_id] = new_dist
-                  previous[neighbor_id] = current_id
-                  heapq.heappush(queue, (new_dist, neighbor_id))
-
-
-
-
-      # Reconstruir camino
-      path = []
-      current = end_id
-      while current in previous:
-          path.insert(0, current)
-          current = previous[current]
-      if path:
-          path.insert(0, start_id)
-      return path
-
-
-
-
-  def get_closest(self, lon, lat):
-      min_dist = float('inf')
-      closest = None
-      for navpoint in self.navpoints.values():
-          dist = ((float(navpoint.lon) - lon) ** 2 + (float(navpoint.lat) - lat) ** 2) ** 0.5
-          if dist < min_dist:
-              min_dist = dist
-              closest = navpoint
-      return closest
-
-
-
-
-  def get_neighbors(self, point_id):
-      return [neighbor_id for neighbor_id, _ in self.navpoints[point_id].neighbors]
-
-
-
+   #Encontrar los vecinos
+   def get_neighbors(self, point_id):
+       return [neighbor_id for neighbor_id, _ in self.navpoints[point_id].neighbors]
