@@ -3,7 +3,7 @@ from tkinter import simpledialog, messagebox, filedialog
 import matplotlib.pyplot as plt
 import networkx as nx
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from Airspace import AirSpace  # Asegúrate de que esté disponible
+from Airspace import AirSpace  
 import simplekml
 import matplotlib.animation as animation
 import numpy as np
