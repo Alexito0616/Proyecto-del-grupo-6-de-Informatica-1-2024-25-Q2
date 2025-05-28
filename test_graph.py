@@ -3,8 +3,6 @@ from graph import *
 from node import Node
 
 
-
-
 def CreateGraph_1():
    G = Graph()
    AddNode(G, Node("A", 1, 20))
@@ -19,8 +17,6 @@ def CreateGraph_1():
    AddNode(G, Node("J", 13, 5))
    AddNode(G, Node("K", 3, 15))
    AddNode(G, Node("L", 4, 10))
-
-
    AddSegment(G, "A", "B")
    AddSegment(G, "A", "E")
    AddSegment(G, "A", "K")
@@ -47,29 +43,19 @@ def CreateGraph_1():
    AddSegment(G, "L", "K")
    AddSegment(G, "L", "F")
    return G
-
-
-
-
 def CreateGraph_2():
    G2 = Graph()
    AddNode(G2, Node("C", 15, 20))
    AddNode(G2, Node("D", 18, 15))
    AddNode(G2, Node("G", 12, 12))
-
-
    AddSegment(G2, "C", "D")
    AddSegment(G2, "C", "G")
    return G2
 
 
-
-
 print("Probando el grafo...")
 
-
 G = CreateGraph_1()
-
 
 # 1. Mostrar todo el grafo
 Plot(G)
@@ -92,7 +78,8 @@ n = GetClosest(G, 8, 19)
 print(n.name)  # La respuesta debe ser B
 
 
-# 4. Crear un segundo grafo inventado
+
+ 4. Crear un segundo grafo inventado
 G2 = CreateGraph_2()
 
 
@@ -108,15 +95,11 @@ from node import Node, AddNeighbor
 from segment import Segment
 
 
-
-
 def TestCreateGraphFromFile():
    print("Creating graph from file...")
 
-
    # Create the graph from the file
    G = CreateGraphFromFile("graph_data.txt")
-
 
    # Check if the graph was created successfully
    if G:
@@ -125,8 +108,6 @@ def TestCreateGraphFromFile():
        print("Graph created successfully.")
    else:
        print("Failed to create graph.")
-
-
 
 
 # Run the test
