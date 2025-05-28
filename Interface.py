@@ -6,7 +6,7 @@ from graph import CreateGraphFromFile, AddSegment, AddNode, RemoveNode, SaveGrap
 from testgraph import CreateGraph_1, CreateGraph_2
 from node import Node
 from Airspace import AirSpace
-from load_catalunya_map import AirspaceGUI  # El archivo debe llamarse AirspaceGUI.py
+from load_catalunya_map import AirspaceGUI  
 
 
 
